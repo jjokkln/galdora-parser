@@ -16,12 +16,22 @@ import atexit
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Importe aus den reorganisierten Modulen
-from src.core.document_processor import DocumentProcessor
-from src.core.ai_extractor import AIExtractor
-from src.core.combined_processor import CombinedProcessor
-from src.templates.template_generator import ProfileGenerator
-import src.utils.config as config  # Importiere das Konfigurationsmodul
-from src.utils.image_utils import get_image_path, ensure_images_in_static  # Importiere die Bild-Utilities
+try:
+    from src.core.document_processor import DocumentProcessor
+    from src.core.ai_extractor import AIExtractor
+    from src.core.combined_processor import CombinedProcessor
+    from src.templates.template_generator import ProfileGenerator
+    import src.utils.config as config  # Importiere das Konfigurationsmodul
+    from src.utils.image_utils import get_image_path, ensure_images_in_static  # Importiere die Bild-Utilities
+except ImportError:
+    # Fallback für Streamlit Cloud
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+    from src.core.document_processor import DocumentProcessor
+    from src.core.ai_extractor import AIExtractor
+    from src.core.combined_processor import CombinedProcessor
+    from src.templates.template_generator import ProfileGenerator
+    import src.utils.config as config
+    from src.utils.image_utils import get_image_path, ensure_images_in_static
 
 # Function to load and convert the logo to base64
 def get_logo_as_base64():
