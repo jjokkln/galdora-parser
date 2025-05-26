@@ -672,6 +672,8 @@ with st.sidebar:
     
     # API-Key-Status prüfen und anzeigen
     openai_api_key = config.get_openai_api_key()
+    api_key_input = None  # Variable für manuell eingegebenen API-Key
+
     if openai_api_key:
         api_key_length = len(openai_api_key)
         masked_key = f"{openai_api_key[:4]}...{openai_api_key[-4:]}" if api_key_length > 8 else "****"
@@ -680,11 +682,29 @@ with st.sidebar:
     else:
         st.error("Kein API-Key gefunden!")
         st.write("""
-        Bitte stellen Sie sicher, dass einer der folgenden Punkte zutrifft:
-        - Eine Datei `.streamlit/secrets.toml` mit `openai_api_key` existiert
-        - Die Umgebungsvariable `OPENAI_API_KEY` gesetzt ist
-        - In Streamlit Cloud die Secrets konfiguriert sind
+        Bitte geben Sie einen OpenAI API-Schlüssel ein, um fortzufahren.
         """)
+        
+        # API-Key-Eingabefeld anzeigen
+        api_key_input = st.text_input(
+            "OpenAI API-Schlüssel eingeben:",
+            type="password",
+            help="Ihr API-Schlüssel wird nur für diese Sitzung verwendet und nicht gespeichert."
+        )
+        
+        # Wenn ein API-Schlüssel eingegeben wurde
+        if api_key_input:
+            # Für diese Sitzung verwenden
+            openai_api_key = api_key_input
+            st.success("API-Schlüssel für diese Sitzung gesetzt!")
+            
+            # Option zum Speichern in der lokalen Konfiguration
+            if st.button("API-Schlüssel für zukünftige Sitzungen speichern"):
+                success = config.save_project_api_key(api_key_input)
+                if success:
+                    st.success("API-Schlüssel erfolgreich gespeichert!")
+                else:
+                    st.error("Fehler beim Speichern des API-Schlüssels.")
     
     # Statusleiste für den aktuellen Arbeitsschritt
     st.divider()
@@ -816,8 +836,8 @@ with st.sidebar:
         reset_session()
         st.rerun()
 
-# Verwende den gespeicherten API-Key aus der Projektkonfiguration
-openai_api_key = config.get_openai_api_key()
+# Verwende den gespeicherten API-Key aus der Projektkonfiguration oder den manuell eingegebenen
+openai_api_key = api_key_input if api_key_input else config.get_openai_api_key()
 
 # Hauptbereich - basierend auf dem aktuellen Schritt
 if st.session_state.step == 1:
