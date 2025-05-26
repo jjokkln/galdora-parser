@@ -1,0 +1,340 @@
+# CV Parser und Profilgenerator
+
+## Übersicht
+
+Diese Anwendung ist ein leistungsstarker CV-Parser, der Lebensläufe automatisch analysiert und in ein standardisiertes Format umwandelt. Die Software nutzt KI-Technologie (OpenAI), um relevante Informationen aus verschiedenen Dokumenttypen zu extrahieren und in strukturierte Daten zu konvertieren.
+
+## Hauptfunktionen
+
+- **Dokumentverarbeitung**: Unterstützung verschiedener Formate wie PDF, DOCX, JPG und PNG
+- **Text-Extraktion**: Intelligente Extraktion von Text aus allen unterstützten Dokumentformaten
+- **KI-gestützte Analyse**: Nutzung von OpenAI-Modellen zur Identifizierung von Schlüsselinformationen
+- **Strukturierte Profilerstellung**: Generierung standardisierter Profile im PDF-Format
+- **Benutzerfreundliche Oberfläche**: Einfache Handhabung durch Streamlit-Frontend
+- **Benutzerverwaltete Einstellungen**: Speichern von Voreinstellungen wie API-Keys und bevorzugten Templates
+- **HTTPS-Kompatibilität**: Bilder werden auf HTTP- und HTTPS-Servern korrekt angezeigt
+
+## Detaillierte Projektstruktur
+
+```
+CV2Profile/
+│
+├── src/                           # Quellcode-Verzeichnis
+│   ├── core/                      # Kernfunktionalität für Dokumentenverarbeitung
+│   │   ├── __init__.py           # Package-Initialisierung
+│   │   ├── document_processor.py  # Dokumentenverarbeitung (PDF, DOCX, Bilder)
+│   │   ├── ai_extractor.py       # KI-gestützte Informationsextraktion (OpenAI)
+│   │   └── combined_processor.py # Kombinierte Verarbeitungslogik
+│   │
+│   ├── ui/                        # Benutzeroberflächen-Module
+│   │   ├── __init__.py           # Package-Initialisierung
+│   │   ├── app.py                # Hauptanwendung (Streamlit-Oberfläche)
+│   │   ├── Home.py               # Homepage der Anwendung
+│   │   └── pages/                # Zusätzliche Seiten
+│   │       ├── README.md         # Dokumentation zu Seiten
+│   │       └── 01_⚙️_Einstellungen.py  # Einstellungen-Seite
+│   │
+│   ├── utils/                     # Hilfsfunktionen
+│   │   ├── __init__.py           # Package-Initialisierung
+│   │   ├── config.py             # Konfigurationsmanagement (API-Keys, etc.)
+│   │   └── image_utils.py        # Bild-Utilities für HTTPS-Kompatibilität
+│   │
+│   ├── templates/                 # Template-Generierung
+│   │   ├── __init__.py           # Package-Initialisierung
+│   │   ├── template_generator.py # PDF-Profilgenerierung
+│   │   └── designs/              # Design-Vorlagen
+│   │       ├── README.md         # Dokumentation für Design-Vorlagen
+│   │       ├── classic/          # Klassisches Design
+│   │       ├── modern/           # Modernes Design (zweispaltig)
+│   │       ├── professional/     # Professionelles Design
+│   │       └── minimalist/       # Minimalistisches Design
+│   │
+│   └── __init__.py               # Hauptpackage-Initialisierung
+│
+├── sources/                       # Ressourcen und Assets
+│   ├── galdoralogo.png           # Firmenlogo für PDF-Dokumente
+│   ├── cv2profile-loho.png       # Anwendungslogo
+│   ├── Profilvorlage Seite 1.png # Designvorlagen
+│   └── Profilvorlage Seite 2.png # Designvorlagen
+│
+├── static/                        # Statische Dateien für HTTPS-Server
+│   └── images/                    # Bilder für HTTPS-Kompatibilität
+│
+├── context/                       # Projektdokumentation und -kontext
+│   ├── Context.md                # Hauptdokumentation (diese Datei)
+│   ├── README.md                 # Zusätzliche Dokumentation
+│   ├── progress.md               # Fortschrittsverfolgung und Aufgabenplanung
+│   ├── activecontext.md          # Aktiver Arbeitskontext
+│   ├── globalsummary.md          # Globale Zusammenfassung
+│   └── summary*.md               # Versionsbasierte Zusammenfassungen
+│
+├── .streamlit/                    # Streamlit-Konfiguration
+│   ├── config.toml               # UI-Einstellungen
+│   ├── secrets.toml              # Anwendungsgeheimnisse (API-Keys etc.)
+│   └── secrets_template.toml     # Vorlage für secrets.toml
+│
+├── venv/ und .venv/              # Virtuelle Umgebungen
+│
+└── Hauptdateien
+    ├── main.py                   # Einstiegspunkt der Anwendung
+    ├── run.sh                    # Skript zum Starten der Anwendung
+    ├── requirements.txt          # Projektabhängigkeiten
+    ├── packages.txt              # Systemabhängigkeiten
+    ├── README.md                 # Projektübersicht
+    ├── archive_notice.py         # Archivierungshinweis
+    └── LICENSE                   # Lizenzinformationen
+```
+
+## Dateipfade für häufige Änderungen
+
+### Benutzeroberfläche anpassen
+- **Hauptanwendung**: `src/ui/app.py` - Enthält die gesamte Streamlit-Hauptoberfläche
+- **Homepage**: `src/ui/Home.py` - Startseite der Anwendung
+- **Einstellungen**: `src/ui/pages/01_⚙️_Einstellungen.py` - Einstellungsseite
+
+### KI-Funktionalität anpassen
+- **Extraktor**: `src/core/ai_extractor.py` - OpenAI-Integration und Datenextraktion
+- **Prompts ändern**: `src/core/ai_extractor.py` - Enthält die Prompt-Templates für OpenAI
+
+### PDF-Vorlagen anpassen
+- **Template-Generator**: `src/templates/template_generator.py` - PDF-Generierung und Design
+- **Verfügbare Templates**: Classic (Standard), Modern (zweispaltig, weinrot/weiß), Professional, Minimalist
+- **Logos und Bilder**: `sources/` - Bilder und Logos für die PDF-Vorlagen
+
+### Bild-Verwaltung anpassen
+- **Bild-Utilities**: `src/utils/image_utils.py` - Funktionen für die HTTPS-kompatible Bildverwaltung
+- **Statische Bilder**: `static/images/` - Speicherort für HTTPS-kompatible Bilddateien
+
+### Konfiguration anpassen
+- **Konfigurationsmanagement**: `src/utils/config.py` - Verwaltet Benutzereinstellungen
+- **Streamlit-Konfiguration**: `.streamlit/config.toml` - Ändert Streamlit-Verhalten
+- **Geheime Schlüssel**: `.streamlit/secrets.toml` - Für API-Keys und Geheimnisse
+
+### Dokument-Verarbeitung anpassen
+- **Dokumentenprozessor**: `src/core/document_processor.py` - Text aus verschiedenen Formaten extrahieren
+- **Kombinierter Prozessor**: `src/core/combined_processor.py` - Hauptworkflow der Anwendung
+
+## Technische Komponenten
+
+Die Anwendung besteht aus mehreren Modulen:
+
+1. **document_processor.py**: Verarbeitet Dokumente und extrahiert Text
+   - Unterstützt PDF-Dokumente mit direkter Textextraktion und OCR-Fallback
+   - Verarbeitet Bilddateien mittels OCR (Optical Character Recognition)
+   - Extrahiert Text aus Word-Dokumenten (DOCX)
+
+2. **ai_extractor.py**: Analysiert den extrahierten Text mittels KI
+   - Verwendet OpenAI-API zur Strukturierung der Daten
+   - Extrahiert persönliche Daten, Berufserfahrung, Ausbildung und Weiterbildungen
+   - Formatiert die Daten in ein standardisiertes JSON-Format
+
+3. **template_generator.py**: Erstellt ansprechende PDF-Profile
+   - Generiert professionell gestaltete PDF-Dokumente
+   - Verwendet ReportLab für die PDF-Erstellung
+   - Erstellt ein einheitliches Layout für alle Profile
+
+4. **app.py**: Hauptanwendung mit Benutzeroberfläche
+   - Streamlit-basierte Oberfläche für einfache Bedienung
+   - Upload-Funktion für Dokumente
+   - Bearbeitungsmöglichkeiten für extrahierte Daten
+   - Download-Option für generierte Profile
+
+5. **config.py**: Verwaltung von Benutzereinstellungen
+   - Speichert den OpenAI API-Key sicher im Benutzerverzeichnis
+   - Verwaltet benutzerdefinierte Einstellungen wie Template-Voreinstellungen
+   - Ermöglicht das Anpassen von Optionen wie Textanzeige und Anonymisierung
+
+6. **image_utils.py** (NEU): Verwaltung von Bildern für verschiedene Umgebungen
+   - Stellt HTTPS-Kompatibilität für Bilder sicher
+   - Kopiert Bilder automatisch in das static-Verzeichnis
+   - Ermöglicht konsistente Bildanzeige auf allen Plattformen
+
+## Anwendungsfälle
+
+- **Personalvermittlung**: Schnelle Verarbeitung und Standardisierung von Bewerber-CVs
+- **HR-Abteilungen**: Effiziente Verwaltung von Bewerbungsunterlagen
+- **Recruiting**: Vereinfachung des Bewerbungsprozesses
+- **Talent-Management**: Erstellung einheitlicher Mitarbeiterprofile
+
+## Voraussetzungen
+
+- Python 3.7 oder höher
+- Installierte Abhängigkeiten (siehe requirements.txt)
+- OpenAI API-Schlüssel für die KI-Funktionalität
+- Für die OCR-Funktionalität: Tesseract OCR installiert
+
+## Installation und Ausführung
+
+1. Repository klonen oder Dateien herunterladen
+2. Virtuelle Umgebung erstellen und aktivieren:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # Linux/macOS
+   venv\Scripts\activate     # Windows
+   ```
+3. Abhängigkeiten installieren:
+   ```
+   pip install -r requirements.txt
+   ```
+4. Anwendung starten:
+   ```
+   streamlit run app.py
+   ```
+5. Im Browser öffnen (standardmäßig unter http://localhost:8501)
+
+## Beispielhafte Nutzung
+
+1. OpenAI API-Schlüssel in der Seitenleiste eingeben (kann für spätere Verwendung gespeichert werden)
+2. Lebenslauf hochladen (PDF, DOCX, JPG oder PNG)
+3. Extrahierte Daten überprüfen und bei Bedarf bearbeiten
+4. Template auswählen (kann als Standard gespeichert werden)
+5. Optional: Anonymisieren der persönlichen Daten aktivieren
+6. Profil generieren und herunterladen
+
+## Aktuelle Version (v5)
+
+Die aktuelle Version (v5) enthält folgende Verbesserungen:
+
+- **Modernisierte Streamlit-API-Nutzung**:
+  - Ersetzung der veralteten `st.experimental_rerun()` durch `st.rerun()`
+  - Verbesserte Kompatibilität mit aktuellen Streamlit-Versionen
+  - Behebung des Fehlers "Module Streamlit Has No Attribute Experimental Rerun"
+
+- **Geschlechtsspezifische Anrede**:
+  - Korrekte Anrede für weibliche Ansprechpartner
+  - Spezielle Anpassung für Melike Demirkol ("Frau Demirkol" statt "Herr Demirkol")
+  - Implementierung in beiden Ausgabeformaten (PDF und DOCX)
+
+- **Verbesserte Drag & Drop-Funktionalität**: 
+  - Manuelle Neuordnung von Berufserfahrungen, Ausbildungen und Weiterbildungen
+  - Intuitive Benutzeroberfläche mit Auf/Ab-Pfeilen (↑/↓) zur Änderung der Reihenfolge
+  - Session-State-Management zur Speicherung der benutzerdefinierten Reihenfolge
+  - Intelligente Integration mit der bestehenden chronologischen Sortierung
+  - Benutzer können zwischen automatischer und manueller Sortierung wechseln
+
+- **Optimiertes PDF-Layout**:
+  - GALDORA-Kontaktdaten als echte Fußzeile auf jeder Seite statt als Teil des Dokumentenkorpus
+  - Verhinderung von Einträgen, die über Seitenumbrüche verteilt werden
+  - Verwendung von ReportLab's `KeepTogether` für zusammenhängende Inhaltsblöcke
+  - Jeder Eintrag für Berufserfahrung, Ausbildung und Weiterbildung wird als untrennbare Einheit behandelt
+  - Integration von Profilbildern in die klassische Vorlage rechts neben dem Logo
+  - Automatische Anpassung des Seitenverhältnisses und der Größe von Profilbildern
+
+- **Technische Fehlerbehebungen**:
+  - Bereinigung doppelter Import-Anweisungen im Template-Generator
+  - Entfernung einer ungültigen Konfiguration in der Streamlit config.toml
+  - Erstellung des fehlenden static-Ordners für die Streamlit-Anwendung
+  - Verbesserte Code-Organisation und Wartbarkeit
+  - Behebung des kritischen Fehlers "name 'doc' is not defined" im Template-Generator
+  - Vereinheitlichung der Tabellenstruktur für alle Eintragstypen
+  
+- **HTTPS-Kompatibilität**: Bilder werden sowohl lokal als auch auf HTTPS-Servern korrekt angezeigt
+- **Automatische Bildverwaltung**: Bilder werden automatisch in das static-Verzeichnis kopiert
+- **Verbesserte Profilvorlagen**: 
+  - Optimiertes Layout für bessere Lesbarkeit
+  - Neues modernes Template im zweispaltigen Design (weinrot/weiß)
+  - Verbesserte visuelle Darstellung von Fähigkeiten und Sprachen
+- **API-Key-Verwaltung**: Der OpenAI API-Key wird sicher in `~/.cv2profile/settings.json` gespeichert
+- **Benutzerverwaltete Einstellungen**: 
+  - Auswahl des Standard-Templates (Klassisch, Modern, Professionell, Minimalistisch)
+  - Option zur Anonymisierung der Daten
+  - Option zur Anzeige des extrahierten Textes
+- **Verbesserte Benutzeroberfläche**:
+  - Hervorhebung des ausgewählten Standard-Templates
+  - Speichern von bevorzugten Templates für zukünftige Verwendung
+  - Eindeutige Schlüssel für Checkbox-Widgets zur Vermeidung von Konflikten
+
+## Deployment-Informationen (NEU)
+
+Die Anwendung kann jetzt über Streamlit Cloud deployed werden. Das Projekt wurde in folgendem Repository veröffentlicht:
+
+- **GitHub Repository**: [https://github.com/jjokkln/Streamlit-Parser.git](https://github.com/jjokkln/Streamlit-Parser.git)
+- **Deployment-Dokumentation**: Eine detaillierte Anleitung zur Deployment findet sich in der Datei README_STREAMLIT.md
+- **Branches**:
+  - `main`: Hauptzweig für Deployment
+  - `streamlit-deployment`: Speziell vorbereiteter Zweig für Streamlit Cloud
+
+### Deployment-Voraussetzungen
+
+- Streamlit Cloud Account
+- OpenAI API-Key (in Streamlit Secrets konfiguriert)
+- GitHub-Zugriff auf das Repository
+
+### Deployment-Schritte
+
+1. Repository forken oder Zugriff erhalten
+2. Streamlit Cloud Dashboard öffnen
+3. Neue App erstellen und Repository verknüpfen
+4. OpenAI API-Key in den Secrets konfigurieren
+5. Deployment starten
+
+## Bekannte Probleme in v4 (behoben in v5)
+
+- ✅ Fehler bei der PDF-Vorschau: In Schritt 3 konnte es zu einem Fehler kommen, wenn `st.session_state.preview_pdf` den Wert `None` hatte
+- ✅ Der Fehler trat auf in der Funktion `display_pdf()` in Zeile 48 der app.py
+- ✅ Fehlermeldung: `TypeError: expected str, bytes or os.PathLike object, not NoneType`
+- ✅ Eine Überprüfung auf `None` wurde implementiert, bevor versucht wird, die Datei zu öffnen
+- Die Drag & Drop-Funktionalität setzt auf Pfeiltasten statt echter Drag & Drop-Interaktion mit der Maus (noch nicht behoben)
+
+## Aktuelle Grenzen und zukünftige Erweiterungen
+
+- Aktuell nur deutsche Sprache vollständig unterstützt
+- Erweiterung um mehrsprachige Unterstützung geplant
+- Verbesserung der KI-Extraktion durch Feintuning geplant
+- Integration mit ATS (Applicant Tracking Systems) möglich
+- Behebung des PDF-Vorschau-Fehlers für die nächste Version geplant
+- Implementierung echter Drag & Drop-Funktionalität mit Maus-/Touch-Gesten
+- Speichern der bevorzugten Reihenfolge in den Benutzereinstellungen
+
+## Datenschutz und Sicherheit
+
+- Lokale Verarbeitung der Dokumente
+- Temporäre Dateien werden nach der Verarbeitung gelöscht
+- Nur für die KI-Analyse werden Daten an OpenAI übertragen (gemäß deren Datenschutzrichtlinien)
+- Keine dauerhafte Speicherung von Bewerberdaten in der Anwendung
+- OpenAI API-Keys werden sicher im Benutzerverzeichnis gespeichert
+
+## API-Key Verwaltung (NEU)
+
+Für eine vereinfachte Nutzung wurde die API-Key-Verwaltung verbessert:
+
+- **Lokale API-Key-Speicherung**: Der OpenAI API-Key kann jetzt in einer projektspezifischen Datei (`api_key.json`) gespeichert werden, die automatisch bei jedem Start der Anwendung geladen wird.
+- **Priorisierte Ladereihenfkolge**:
+  1. Umgebungsvariable `OPENAI_API_KEY`
+  2. Projektspezifische Datei `api_key.json`
+  3. Streamlit Secrets (für Deployment)
+  4. Benutzereinstellungen in `~/.cv2profile/settings.json`
+- **Benutzerfreundliche Konfiguration**: Über die Einstellungsseite kann der API-Key einfach eingegeben und im Projekt gespeichert werden.
+- **Deployment-Sicherheit**: Die `api_key.json` Datei ist in `.gitignore` eingetragen und wird nicht ins Repository übertragen.
+
+Die Implementierung umfasst:
+- Erweiterung von `config.py` mit neuen Funktionen zum Laden und Speichern des projektspezifischen API-Keys
+- Aktualisierung der Einstellungsseite mit einer Benutzeroberfläche zum Verwalten des API-Keys
+- Dokumentation der neuen Funktionalität in der README
+
+Diese Verbesserung ermöglicht es Benutzern, ihren API-Key einmalig zu speichern und dann bei jeder Nutzung der Anwendung ohne erneute Eingabe zu verwenden, was besonders für lokale Entwicklung und wiederholte Nutzung praktisch ist.
+
+## Verbesserte Navigation und Status-Tracking (NEU)
+
+Die Benutzerführung und Navigation wurden weiter optimiert:
+
+- **Visuelle Statusleiste**: Eine intuitive Statusleiste in der Seitenleiste zeigt dem Benutzer jederzeit an, in welchem Schritt des Prozesses er sich befindet:
+  1. Datei hochladen
+  2. Daten bearbeiten
+  3. Profil exportieren
+
+- **Optimierte Navigation**: 
+  - Der "Einstellungen öffnen" Button in der Seitenleiste führt direkt zur Einstellungsseite
+  - Ein "Zurück zum Konverter" Button auf der Einstellungsseite ermöglicht die einfache Rückkehr
+  - Konsistente Gestaltung aller Navigationselemente im Glasmorphismus-Design
+
+- **Sauberere Benutzeroberfläche**:
+  - Entfernung der API-Key-Eingabefelder aus der Seitenleiste zugunsten der zentralen Verwaltung auf der Einstellungsseite
+  - Reduzierung von Redundanz im Interface
+  - Fokussierung auf den Hauptarbeitsablauf
+
+Die verbesserte Navigation und Statusanzeige erhöhen die Benutzerfreundlichkeit, indem sie:
+- Den aktuellen Fortschritt visuell verdeutlichen
+- Die Erwartungen des Benutzers bezüglich der nächsten Schritte lenken
+- Den Kontext der aktuellen Aktion hervorheben
+- Die Navigation zwischen verschiedenen Komponenten der Anwendung vereinfachen 
