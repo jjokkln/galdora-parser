@@ -43,4 +43,14 @@ Wenn weiterhin Probleme auftreten:
 
 - Prüfen Sie die Logs unter "Manage app" > "Logs"
 - Stellen Sie sicher, dass der API-Schlüssel gültig ist
-- Überprüfen Sie, ob alle erforderlichen Pakete in `requirements.txt` enthalten sind 
+- Überprüfen Sie, ob alle erforderlichen Pakete in `requirements.txt` enthalten sind
+- **Wichtig:** Der API-Schlüssel muss als direkter Eintrag `openai_api_key` in den Secrets gespeichert sein, nicht in einem verschachtelten `[openai]`-Abschnitt
+- Die korrekte Formatierung in den Secrets sollte so aussehen:
+  ```toml
+  openai_api_key = "sk-IhrApiSchlüssel"
+  
+  [general]
+  default_template = "Klassisch"
+  show_extracted_text = false
+  ```
+- Nach jeder Änderung an den Secrets müssen Sie die App neu starten 

@@ -666,6 +666,26 @@ st.markdown("""
 with st.sidebar:
     st.header("Einstellungen")
     
+    # API-Key-Status-Debug-Informationen
+    st.divider()
+    st.subheader("API-Key Status")
+    
+    # API-Key-Status prüfen und anzeigen
+    openai_api_key = config.get_openai_api_key()
+    if openai_api_key:
+        api_key_length = len(openai_api_key)
+        masked_key = f"{openai_api_key[:4]}...{openai_api_key[-4:]}" if api_key_length > 8 else "****"
+        st.success(f"API-Key gefunden: {masked_key}")
+        st.write("Quelle: " + ("Streamlit Secrets" if "secrets" in st.__dict__ and "openai_api_key" in st.secrets else "Konfigurationsdatei oder Umgebungsvariable"))
+    else:
+        st.error("Kein API-Key gefunden!")
+        st.write("""
+        Bitte stellen Sie sicher, dass einer der folgenden Punkte zutrifft:
+        - Eine Datei `.streamlit/secrets.toml` mit `openai_api_key` existiert
+        - Die Umgebungsvariable `OPENAI_API_KEY` gesetzt ist
+        - In Streamlit Cloud die Secrets konfiguriert sind
+        """)
+    
     # Statusleiste für den aktuellen Arbeitsschritt
     st.divider()
     st.subheader("Status")

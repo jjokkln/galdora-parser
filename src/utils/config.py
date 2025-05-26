@@ -87,13 +87,14 @@ def get_openai_api_key():
         except Exception as e:
             print(f"Fehler beim Laden der Projekt-API-Key-Datei: {e}")
     
-    # 3. Streamlit Secrets prüfen
+    # 3. Streamlit Secrets prüfen - direkt als 'openai_api_key' ohne Verschachtelung
     try:
         import streamlit as st
-        if "openai" in st.secrets and "api_key" in st.secrets["openai"]:
-            if st.secrets["openai"]["api_key"]:  # Nur zurückgeben, wenn nicht leer
-                return st.secrets["openai"]["api_key"]
-    except Exception:
+        if "openai_api_key" in st.secrets:
+            if st.secrets["openai_api_key"]:  # Nur zurückgeben, wenn nicht leer
+                return st.secrets["openai_api_key"]
+    except Exception as e:
+        print(f"Fehler beim Laden des API-Keys aus Streamlit Secrets: {e}")
         pass  # Keine Streamlit-Umgebung oder keine Secrets konfiguriert
     
     # 4. Dann in den gespeicherten Benutzereinstellungen nachsehen
