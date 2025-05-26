@@ -75,6 +75,7 @@ def get_openai_api_key():
     # 1. Zuerst in der Umgebungsvariablen nachsehen (hat höchste Priorität)
     env_key = os.environ.get("OPENAI_API_KEY")
     if env_key:
+        print("API-Key aus Umgebungsvariable geladen")
         return env_key
     
     # 2. Projektspezifische API-Key-Datei prüfen
@@ -83,22 +84,46 @@ def get_openai_api_key():
             with open(PROJECT_CONFIG_FILE, "r") as f:
                 project_settings = json.load(f)
                 if project_settings.get("openai_api_key"):
+                    print("API-Key aus Projekt-Konfigurationsdatei geladen")
                     return project_settings["openai_api_key"]
         except Exception as e:
             print(f"Fehler beim Laden der Projekt-API-Key-Datei: {e}")
     
-    # 3. Streamlit Secrets prüfen
+    # 3. Streamlit Secrets prüfen - verschiedene Formate probieren
     try:
         import streamlit as st
-        if "openai" in st.secrets and "api_key" in st.secrets["openai"]:
-            if st.secrets["openai"]["api_key"]:  # Nur zurückgeben, wenn nicht leer
-                return st.secrets["openai"]["api_key"]
-    except Exception:
-        pass  # Keine Streamlit-Umgebung oder keine Secrets konfiguriert
+        
+        # Direkt als 'openai_api_key' (bevorzugt)
+        if hasattr(st, 'secrets') and "openai_api_key" in st.secrets:
+            api_key = st.secrets["openai_api_key"]
+            if api_key and len(api_key) > 5:  # Minimale Validierung
+                print("API-Key aus Streamlit Secrets (direkter Schlüssel) geladen")
+                return api_key
+        
+        # Alternativer Pfad: verschachtelter Bereich [openai]
+        if hasattr(st, 'secrets') and "openai" in st.secrets and "api_key" in st.secrets["openai"]:
+            api_key = st.secrets["openai"]["api_key"]
+            if api_key and len(api_key) > 5:  # Minimale Validierung
+                print("API-Key aus Streamlit Secrets (verschachtelter Schlüssel) geladen")
+                return api_key
+                
+        # Debug-Ausgabe der vorhandenen Secrets-Struktur
+        if hasattr(st, 'secrets'):
+            print("Verfügbare Streamlit Secrets-Schlüssel:", list(st.secrets.keys()))
+        else:
+            print("Keine Streamlit Secrets verfügbar")
+            
+    except Exception as e:
+        print(f"Fehler beim Laden des API-Keys aus Streamlit Secrets: {e}")
     
     # 4. Dann in den gespeicherten Benutzereinstellungen nachsehen
     settings = load_settings()
-    return settings.get("openai_api_key", "")
+    api_key = settings.get("openai_api_key", "")
+    if api_key:
+        print("API-Key aus gespeicherten Benutzereinstellungen geladen")
+    else:
+        print("Kein API-Key in keiner Quelle gefunden")
+    return api_key
 
 def save_openai_api_key(api_key):
     """Speichert den OpenAI API Key in den Einstellungen"""

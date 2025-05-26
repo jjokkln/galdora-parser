@@ -16,12 +16,22 @@ import atexit
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Importe aus den reorganisierten Modulen
-from src.core.document_processor import DocumentProcessor
-from src.core.ai_extractor import AIExtractor
-from src.core.combined_processor import CombinedProcessor
-from src.templates.template_generator import ProfileGenerator
-import src.utils.config as config  # Importiere das Konfigurationsmodul
-from src.utils.image_utils import get_image_path, ensure_images_in_static  # Importiere die Bild-Utilities
+try:
+    from src.core.document_processor import DocumentProcessor
+    from src.core.ai_extractor import AIExtractor
+    from src.core.combined_processor import CombinedProcessor
+    from src.templates.template_generator import ProfileGenerator
+    import src.utils.config as config  # Importiere das Konfigurationsmodul
+    from src.utils.image_utils import get_image_path, ensure_images_in_static  # Importiere die Bild-Utilities
+except ImportError:
+    # Fallback für Streamlit Cloud
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+    from src.core.document_processor import DocumentProcessor
+    from src.core.ai_extractor import AIExtractor
+    from src.core.combined_processor import CombinedProcessor
+    from src.templates.template_generator import ProfileGenerator
+    import src.utils.config as config
+    from src.utils.image_utils import get_image_path, ensure_images_in_static
 
 # Function to load and convert the logo to base64
 def get_logo_as_base64():
@@ -656,6 +666,46 @@ st.markdown("""
 with st.sidebar:
     st.header("Einstellungen")
     
+    # API-Key-Status-Debug-Informationen
+    st.divider()
+    st.subheader("API-Key Status")
+    
+    # API-Key-Status prüfen und anzeigen
+    openai_api_key = config.get_openai_api_key()
+    api_key_input = None  # Variable für manuell eingegebenen API-Key
+
+    if openai_api_key:
+        api_key_length = len(openai_api_key)
+        masked_key = f"{openai_api_key[:4]}...{openai_api_key[-4:]}" if api_key_length > 8 else "****"
+        st.success(f"API-Key gefunden: {masked_key}")
+        st.write("Quelle: " + ("Streamlit Secrets" if "secrets" in st.__dict__ and "openai_api_key" in st.secrets else "Konfigurationsdatei oder Umgebungsvariable"))
+    else:
+        st.error("Kein API-Key gefunden!")
+        st.write("""
+        Bitte geben Sie einen OpenAI API-Schlüssel ein, um fortzufahren.
+        """)
+        
+        # API-Key-Eingabefeld anzeigen
+        api_key_input = st.text_input(
+            "OpenAI API-Schlüssel eingeben:",
+            type="password",
+            help="Ihr API-Schlüssel wird nur für diese Sitzung verwendet und nicht gespeichert."
+        )
+        
+        # Wenn ein API-Schlüssel eingegeben wurde
+        if api_key_input:
+            # Für diese Sitzung verwenden
+            openai_api_key = api_key_input
+            st.success("API-Schlüssel für diese Sitzung gesetzt!")
+            
+            # Option zum Speichern in der lokalen Konfiguration
+            if st.button("API-Schlüssel für zukünftige Sitzungen speichern"):
+                success = config.save_project_api_key(api_key_input)
+                if success:
+                    st.success("API-Schlüssel erfolgreich gespeichert!")
+                else:
+                    st.error("Fehler beim Speichern des API-Schlüssels.")
+    
     # Statusleiste für den aktuellen Arbeitsschritt
     st.divider()
     st.subheader("Status")
@@ -786,8 +836,8 @@ with st.sidebar:
         reset_session()
         st.rerun()
 
-# Verwende den gespeicherten API-Key aus der Projektkonfiguration
-openai_api_key = config.get_openai_api_key()
+# Verwende den gespeicherten API-Key aus der Projektkonfiguration oder den manuell eingegebenen
+openai_api_key = api_key_input if api_key_input else config.get_openai_api_key()
 
 # Hauptbereich - basierend auf dem aktuellen Schritt
 if st.session_state.step == 1:
