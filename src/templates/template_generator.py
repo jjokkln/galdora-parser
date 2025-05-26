@@ -772,23 +772,40 @@ class ProfileGenerator:
                 right_content.append(Paragraph("BERUFSERFAHRUNG", modern_category_style))
                 berufserfahrung = profile_data.get('berufserfahrung', [])
                 if berufserfahrung:
-                    for erfahrung in berufserfahrung:
+                    # Spezielle Behandlung für den beruflichen Werdegang
+                    # - Der Abschnitt soll immer auf der ersten Seite beginnen
+                    # - Mindestens zwei Berufsstationen sollen auf der ersten Seite sichtbar sein
+                    
+                    # Überschrift für den beruflichen Werdegang
+                    elements.append(Paragraph("Beruflicher Werdegang", self.custom_styles['Heading2']))
+                    
+                    # Die ersten zwei Berufserfahrungen direkt einfügen (ohne KeepTogether)
+                    first_job_entries = min(2, len(berufserfahrung))
+                    
+                    for index, erfahrung in enumerate(berufserfahrung[:first_job_entries]):
                         try:
+                            # Zeitraum
                             zeitraum = erfahrung.get('zeitraum', '')
+                            
+                            # Unternehmen und Position
                             unternehmen = erfahrung.get('unternehmen', '')
                             position = erfahrung.get('position', '')
-                            
-                            # Zeitraum und Unternehmen
-                            right_column_content = [
-                                Paragraph(unternehmen, self.custom_styles['Company']),
-                                Paragraph(position, self.custom_styles['Position'])
-                            ]
                             
                             # Aufgaben auf maximal 4 begrenzen
                             aufgaben = erfahrung.get('aufgaben', [])
                             aufgaben_formatted = []
                             for i, aufgabe in enumerate(aufgaben[:4]):  # Maximal 4 Aufgaben
                                 aufgaben_formatted.append(Paragraph(f"• {aufgabe}", self.custom_styles['Normal']))
+                            
+                            # Erstelle zweispaltiges Layout mit mehr Platz für die rechte Spalte
+                            # Linke Spalte: Zeitraum
+                            # Rechte Spalte: Unternehmen, Position, Aufgaben
+                            
+                            # Bereite die rechte Spalte vor
+                            right_column_content = [
+                                Paragraph(unternehmen, self.custom_styles['Company']),
+                                Paragraph(position, self.custom_styles['Position'])
+                            ]
                             
                             # Aufgaben zur rechten Spalte hinzufügen
                             right_column_content.extend(aufgaben_formatted)
@@ -800,7 +817,7 @@ class ProfileGenerator:
                             for i in range(1, len(right_column_content)):
                                 data.append([Paragraph('', self.custom_styles['Normal']), right_column_content[i]])
                             
-                            # Tabelle mit definierter Breite (10% links, 75% rechts)
+                            # Tabelle mit definierter Breite (15% links, 65% rechts)
                             col_widths = [A4[0] * 0.15, A4[0] * 0.65]
                             
                             table = Table(data, colWidths=col_widths)
@@ -811,75 +828,72 @@ class ProfileGenerator:
                                 ('LEFTPADDING', (1, 0), (1, -1), 2*cm),  # Ca. 2cm Einrückung für bessere Lesbarkeit
                             ]))
                             
-                            # Wir verpacken die Tabelle und den Spacer in KeepTogether, damit sie nicht über eine Seite verteilt werden
-                            entry_elements = [table, Spacer(1, 0.3*cm)]
-                            elements.append(KeepTogether(entry_elements))
+                            # Tabelle und Spacer direkt hinzufügen (ohne KeepTogether)
+                            elements.append(table)
+                            elements.append(Spacer(1, 0.3*cm))
                         except Exception as e:
                             print(f"Fehler bei der Verarbeitung einer Berufserfahrung: {str(e)}")
                             # Einfache Darstellung als Fallback
                             elements.append(Paragraph(f"{zeitraum} - {unternehmen} - {position}", self.custom_styles['Normal']))
                             elements.append(Spacer(1, 0.3*cm))
-                else:
-                    elements.append(Paragraph("Keine Berufserfahrung angegeben", self.custom_styles['Normal']))
-                
-                # Ausbildung
-                elements.append(Spacer(1, 0.5*cm))
-                # Trennlinie zwischen Berufserfahrung und Ausbildung
-                elements.append(HRFlowable(width="100%", thickness=1, lineCap='round', color=colors.lightgrey))
-                elements.append(Spacer(1, 0.5*cm))
-                elements.append(Paragraph("Ausbildung/ Weiterbildung", self.custom_styles['Heading2']))
-                
-                # Weiterbildungen
-                if profile_data.get("weiterbildungen"):
-                    for training in profile_data.get("weiterbildungen", []):
-                        try:
-                            # Zeitraum
-                            zeitraum = training.get("zeitraum", "")
-                            
-                            # Bezeichnung und Abschluss
-                            bezeichnung = training.get("bezeichnung", "")
-                            abschluss = training.get("abschluss", "")
-                            
-                            # Rechte Spalte Inhalte
-                            right_column_content = []
-                            
-                            # Formatieren wie im Design
-                            if "zum" in bezeichnung or "zur" in bezeichnung:
-                                right_column_content.append(Paragraph(f"Fortbildung {bezeichnung}", self.custom_styles['Company']))
-                            else:
-                                right_column_content.append(Paragraph(f"Fortbildung zum {bezeichnung}", self.custom_styles['Company']))
-                            
-                            # Abschluss nur anzeigen, wenn nicht leer und nicht bereits in Bezeichnung enthalten
-                            if abschluss and abschluss not in bezeichnung:
-                                right_column_content.append(Paragraph(f"{abschluss}", self.custom_styles['Normal']))
-                            
-                            # Erstelle zweispaltiges Layout mit mehr Platz für die rechte Spalte
-                            data = [[Paragraph(zeitraum, self.custom_styles['Period']), right_column_content[0]]]
-                            
-                            # Füge weitere Zeilen hinzu
-                            for i in range(1, len(right_column_content)):
-                                data.append([Paragraph('', self.custom_styles['Normal']), right_column_content[i]])
-                            
-                            # Tabelle mit definierter Breite (15% links, 65% rechts)
-                            col_widths = [A4[0] * 0.15, A4[0] * 0.65]
-                            
-                            # Hier wird train_table mit Table erstellt (nicht mit doc.add_table)
-                            train_table = Table(data, colWidths=col_widths)
-                            train_table.setStyle(TableStyle([
-                                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                                ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-                                ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-                                ('LEFTPADDING', (1, 0), (1, -1), 2*cm),  # Ca. 2cm Einrückung für bessere Lesbarkeit
-                            ]))
-                            
-                            # Wir verpacken die Tabelle und den Spacer in KeepTogether, damit sie nicht über eine Seite verteilt werden
-                            entry_elements = [train_table, Spacer(1, 0.3*cm)]
-                            elements.append(KeepTogether(entry_elements))
-                        except Exception as e:
-                            print(f"Fehler bei der Verarbeitung einer Weiterbildung: {str(e)}")
-                            # Einfache Darstellung als Fallback
-                            elements.append(Paragraph(f"{zeitraum} - {bezeichnung}", self.custom_styles['Normal']))
-                            elements.append(Spacer(1, 0.3*cm))
+                    
+                    # Restliche Berufserfahrungen mit KeepTogether hinzufügen
+                    if len(berufserfahrung) > first_job_entries:
+                        # Für die restlichen Einträge können wir wieder KeepTogether verwenden
+                        for erfahrung in berufserfahrung[first_job_entries:]:
+                            werdegang_elements = []
+                            try:
+                                # Zeitraum
+                                zeitraum = erfahrung.get('zeitraum', '')
+                                
+                                # Unternehmen und Position
+                                unternehmen = erfahrung.get('unternehmen', '')
+                                position = erfahrung.get('position', '')
+                                
+                                # Aufgaben auf maximal 4 begrenzen
+                                aufgaben = erfahrung.get('aufgaben', [])
+                                aufgaben_formatted = []
+                                for i, aufgabe in enumerate(aufgaben[:4]):  # Maximal 4 Aufgaben
+                                    aufgaben_formatted.append(Paragraph(f"• {aufgabe}", self.custom_styles['Normal']))
+                                
+                                # Bereite die rechte Spalte vor
+                                right_column_content = [
+                                    Paragraph(unternehmen, self.custom_styles['Company']),
+                                    Paragraph(position, self.custom_styles['Position'])
+                                ]
+                                
+                                # Aufgaben zur rechten Spalte hinzufügen
+                                right_column_content.extend(aufgaben_formatted)
+                                
+                                # Bereite die Tabellendaten vor
+                                data = [[Paragraph(zeitraum, self.custom_styles['Period']), right_column_content[0]]]
+                                
+                                # Füge weitere Zeilen hinzu
+                                for i in range(1, len(right_column_content)):
+                                    data.append([Paragraph('', self.custom_styles['Normal']), right_column_content[i]])
+                                
+                                # Tabelle mit definierter Breite (15% links, 65% rechts)
+                                col_widths = [A4[0] * 0.15, A4[0] * 0.65]
+                                
+                                table = Table(data, colWidths=col_widths)
+                                table.setStyle(TableStyle([
+                                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                                    ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+                                    ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+                                    ('LEFTPADDING', (1, 0), (1, -1), 2*cm),  # Ca. 2cm Einrückung für bessere Lesbarkeit
+                                ]))
+                                
+                                # Tabelle und Spacer zur Sammlung hinzufügen
+                                werdegang_elements.append(table)
+                                werdegang_elements.append(Spacer(1, 0.3*cm))
+                            except Exception as e:
+                                print(f"Fehler bei der Verarbeitung einer Berufserfahrung: {str(e)}")
+                                # Einfache Darstellung als Fallback
+                                werdegang_elements.append(Paragraph(f"{zeitraum} - {unternehmen} - {position}", self.custom_styles['Normal']))
+                                werdegang_elements.append(Spacer(1, 0.3*cm))
+                                
+                                # Füge diesen Eintrag als KeepTogether hinzu
+                                elements.append(KeepTogether(werdegang_elements))
             else:  # Classic Template (default)
                 # Ensure we have personal_data initialized at the start
                 personal_data = profile_data.get('persönliche_daten', {})
@@ -1069,11 +1083,17 @@ class ProfileGenerator:
             # Beruflicher Werdegang - nur hinzufügen, wenn tatsächlich Berufserfahrungen vorhanden sind
             berufserfahrung = profile_data.get('berufserfahrung', [])
             if berufserfahrung:
-                # Überschrift und Inhalte in KeepTogether verpacken
-                werdegang_elements = []
-                werdegang_elements.append(Paragraph("Beruflicher Werdegang", self.custom_styles['Heading2']))
+                # Spezielle Behandlung für den beruflichen Werdegang im klassischen Design:
+                # - Der Abschnitt soll immer auf der ersten Seite beginnen
+                # - Mindestens zwei Berufsstationen sollen auf der ersten Seite sichtbar sein
                 
-                for erfahrung in berufserfahrung:
+                # Überschrift für den beruflichen Werdegang
+                elements.append(Paragraph("Beruflicher Werdegang", self.custom_styles['Heading2']))
+                
+                # Die ersten zwei Berufserfahrungen direkt einfügen (ohne KeepTogether)
+                first_job_entries = min(2, len(berufserfahrung))
+                
+                for index, erfahrung in enumerate(berufserfahrung[:first_job_entries]):
                     try:
                         # Zeitraum
                         zeitraum = erfahrung.get('zeitraum', '')
@@ -1108,7 +1128,7 @@ class ProfileGenerator:
                         for i in range(1, len(right_column_content)):
                             data.append([Paragraph('', self.custom_styles['Normal']), right_column_content[i]])
                         
-                        # Tabelle mit definierter Breite (10% links, 75% rechts)
+                        # Tabelle mit definierter Breite (15% links, 65% rechts)
                         col_widths = [A4[0] * 0.15, A4[0] * 0.65]
                         
                         table = Table(data, colWidths=col_widths)
@@ -1119,17 +1139,73 @@ class ProfileGenerator:
                             ('LEFTPADDING', (1, 0), (1, -1), 2*cm),  # Ca. 2cm Einrückung für bessere Lesbarkeit
                         ]))
                         
-                        # Tabelle und Spacer zur Sammlung hinzufügen
-                        werdegang_elements.append(table)
-                        werdegang_elements.append(Spacer(1, 0.3*cm))
+                        # Tabelle und Spacer direkt hinzufügen (ohne KeepTogether)
+                        elements.append(table)
+                        elements.append(Spacer(1, 0.3*cm))
                     except Exception as e:
                         print(f"Fehler bei der Verarbeitung einer Berufserfahrung: {str(e)}")
                         # Einfache Darstellung als Fallback
-                        werdegang_elements.append(Paragraph(f"{zeitraum} - {unternehmen} - {position}", self.custom_styles['Normal']))
-                        werdegang_elements.append(Spacer(1, 0.3*cm))
+                        elements.append(Paragraph(f"{zeitraum} - {unternehmen} - {position}", self.custom_styles['Normal']))
+                        elements.append(Spacer(1, 0.3*cm))
                 
-                # Füge alle Berufserfahrungselemente zusammen als eine untrennbare Einheit hinzu
-                elements.append(KeepTogether(werdegang_elements))
+                # Restliche Berufserfahrungen mit KeepTogether hinzufügen
+                if len(berufserfahrung) > first_job_entries:
+                    # Für die restlichen Einträge können wir wieder KeepTogether verwenden
+                    for erfahrung in berufserfahrung[first_job_entries:]:
+                        # Erstelle für jede weitere Berufserfahrung ein eigenes KeepTogether-Element
+                        werdegang_elements = []
+                        try:
+                            # Zeitraum
+                            zeitraum = erfahrung.get('zeitraum', '')
+                            
+                            # Unternehmen und Position
+                            unternehmen = erfahrung.get('unternehmen', '')
+                            position = erfahrung.get('position', '')
+                            
+                            # Aufgaben auf maximal 4 begrenzen
+                            aufgaben = erfahrung.get('aufgaben', [])
+                            aufgaben_formatted = []
+                            for i, aufgabe in enumerate(aufgaben[:4]):  # Maximal 4 Aufgaben
+                                aufgaben_formatted.append(Paragraph(f"• {aufgabe}", self.custom_styles['Normal']))
+                            
+                            # Bereite die rechte Spalte vor
+                            right_column_content = [
+                                Paragraph(unternehmen, self.custom_styles['Company']),
+                                Paragraph(position, self.custom_styles['Position'])
+                            ]
+                            
+                            # Aufgaben zur rechten Spalte hinzufügen
+                            right_column_content.extend(aufgaben_formatted)
+                            
+                            # Bereite die Tabellendaten vor
+                            data = [[Paragraph(zeitraum, self.custom_styles['Period']), right_column_content[0]]]
+                            
+                            # Füge weitere Zeilen hinzu
+                            for i in range(1, len(right_column_content)):
+                                data.append([Paragraph('', self.custom_styles['Normal']), right_column_content[i]])
+                            
+                            # Tabelle mit definierter Breite (15% links, 65% rechts)
+                            col_widths = [A4[0] * 0.15, A4[0] * 0.65]
+                            
+                            table = Table(data, colWidths=col_widths)
+                            table.setStyle(TableStyle([
+                                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                                ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+                                ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+                                ('LEFTPADDING', (1, 0), (1, -1), 2*cm),  # Ca. 2cm Einrückung für bessere Lesbarkeit
+                            ]))
+                            
+                            # Tabelle und Spacer zur Sammlung hinzufügen
+                            werdegang_elements.append(table)
+                            werdegang_elements.append(Spacer(1, 0.3*cm))
+                        except Exception as e:
+                            print(f"Fehler bei der Verarbeitung einer Berufserfahrung: {str(e)}")
+                            # Einfache Darstellung als Fallback
+                            werdegang_elements.append(Paragraph(f"{zeitraum} - {unternehmen} - {position}", self.custom_styles['Normal']))
+                            werdegang_elements.append(Spacer(1, 0.3*cm))
+                        
+                        # Füge jede weitere Berufserfahrung einzeln als KeepTogether hinzu
+                        elements.append(KeepTogether(werdegang_elements))
             
             # Trennlinie zwischen Berufserfahrung und Ausbildung
             elements.append(Spacer(1, 0.5*cm))
