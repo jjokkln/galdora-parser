@@ -786,8 +786,8 @@ with st.sidebar:
         reset_session()
         st.rerun()
 
-# Verwende den gespeicherten API-Key aus der Projektkonfiguration
-openai_api_key = config.get_openai_api_key()
+# Verwende den API-Key aus allen verfügbaren Quellen (Umgebungsvariable, Projektdatei, Secrets, Benutzereinstellungen)
+openai_api_key = config.get_openai_api_key_from_all_sources()
 
 # Hauptbereich - basierend auf dem aktuellen Schritt
 if st.session_state.step == 1:

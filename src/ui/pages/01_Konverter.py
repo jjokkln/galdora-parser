@@ -563,7 +563,7 @@ if 'temp_files' not in st.session_state:
     st.session_state.temp_files = []
 if 'saved_api_key' not in st.session_state:
     # Lade den gespeicherten API-Key
-    st.session_state.saved_api_key = config.get_openai_api_key()
+    st.session_state.saved_api_key = config.get_openai_api_key_from_all_sources()
 
 
 
@@ -787,7 +787,7 @@ with st.sidebar:
         st.rerun()
 
 # Verwende den gespeicherten API-Key aus der Projektkonfiguration
-openai_api_key = config.get_openai_api_key()
+openai_api_key = config.get_openai_api_key_from_all_sources()
 
 # Hauptbereich - basierend auf dem aktuellen Schritt
 if st.session_state.step == 1:
